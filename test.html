@@ -24,6 +24,25 @@ Radio Station:
 	&nbsp;&nbsp;&nbsp;
 	<input type=radio name="Station" value=KCRAP> KCRAP
 
+<p>
+Organs:
+	<input type=checkbox name="Organs,Kidney"> Kidney 
+	&nbsp;
+	<input type=checkbox name="Organs,Lung"> Lung 
+	&nbsp;
+	<input type=checkbox name="Organs,Heart"> Heart 
+
+<p>
+Pets:<br>
+Dogs:
+	<input type=checkbox name="pets,dogs,spot"> Spot 
+	&nbsp;
+	<input type=checkbox name="pets,dogs,rover"> Rover 
+Cats:
+	<input type=checkbox name="pets,cats,mittens"> Mittens 
+	&nbsp;
+	<input type=checkbox name="pets,cats,stink"> Stink 
+
 
 <hr>
 
@@ -36,6 +55,16 @@ Radio Station:
 		flavor: "",
 		are_you_happy: false,
 		station: "",
+		organs: {
+			kidney: false,
+			lung: false,
+			heart: false,
+		},
+		pets: {
+			dogs: { spot: false, rover: false, },
+			cats: { mittens: false, stink: false, },
+		},
+		glorp: 7,
 	};
 
 	load = function() {

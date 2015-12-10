@@ -16,7 +16,7 @@ MVC = {};
 		return function(){};
 	}
 
-	var setup = function(model, key, element) {
+	var set_one = function(model, key, element) {
 		var val = model[key];
 
 		if(element.type == "radio") {
@@ -41,16 +41,25 @@ MVC = {};
 		}
 	}
 
+
+	var set_all = function(model, mom) {
+		var pre = mom ? (mom+"_") : "";
+		for(var key in model) {
+			if(typeof model[key] === "object") {
+				set_all(model[key], pre+key);
+			}
+			else {
+				$("[data-key="+pre+key+"]").each(function() {
+					set_one(model, key, this);
+				});
+			}
+		}
+	}
+
 	// update UI to match model
 	MVC.toUI = function(model) {
-
 		set_data_keys();
-
-		for(var key in model) {
-			$("[data-key="+key+"]").each(function() {
-				setup(model, key, this);
-			});
-		}
+		set_all(model);
 	}
 
 })();
