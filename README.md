@@ -1,4 +1,4 @@
 
 
-Requires: jquery, sleepless.js
+Requires: jquery, sleepless.js (https://github.com/sleeplessinc/sleepless)
 
