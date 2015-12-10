@@ -1,4 +1,6 @@
 
 
-Requires: jquery, sleepless.js (https://github.com/sleeplessinc/sleepless)
+Expects jquery to be loaded.
+
+Expects sleepless.js (https://github.com/sleeplessinc/sleepless)
 
