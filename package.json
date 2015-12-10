@@ -1,0 +1,18 @@
+{
+	"name": "sleepless-mvc",
+	"version": "1.0.0",
+	"description" : "Minimalist Javascript Object/UI code for browser",
+	"author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
+	"license": {
+		"type": "MIT",
+		"url": "https://github.com/sleeplessinc/sleepless-mvc/raw/master/LICENSE"
+	},
+	"repository": [
+		{
+			"type": "git",
+			"url": "http://github.com/sleeplessinc/sleepless-mvc"
+		}
+	],
+	"main":"mvc.js"
+}
+
