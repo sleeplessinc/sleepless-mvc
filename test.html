@@ -1,0 +1,49 @@
+
+<html
+<body>
+
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="sleepless.js"></script>
+<script src="mvc.js"></script>
+
+
+<input type=text name="Title" ><br>
+<textarea name="Description"></textarea><br>
+<input type=number name="Age" ><br>
+<select name=Flavor>
+	<option></option>
+	<option>Foo</option>
+	<option>Bar</option>
+</select><br>
+Are you happy? <input type=checkbox name="Are you happy?" ><br>
+
+<hr>
+
+<script>
+
+	var data = {
+		title: "",
+		description: "",
+		age: 0,
+		flavor: "",
+		are_you_happy: false,
+	};
+
+	load = function() {
+		data = JSON.parse(localStorage.getItem("data"));
+		MVC.toUI(data);
+	}
+
+	save = function() {
+		var json = JSON.stringify(data);
+		localStorage.setItem("data", json);
+		log("saved: "+json);
+	}
+
+	MVC.toUI(data);
+
+</script>
+
+<input type=button value=Load onclick="load()">
+<input type=button value=Save onclick="save()">
+
