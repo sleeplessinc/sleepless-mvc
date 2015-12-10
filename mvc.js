@@ -19,11 +19,16 @@ MVC = {};
 	var setup = function(model, key, element) {
 		var val = model[key];
 
-		if(typeof val === "boolean") {
-			element.checked = val
+		if(element.type == "radio") {
+			element.checked = (element.value == val);
 		}
 		else {
-			element.value = val;
+			if(typeof val === "boolean") {
+				element.checked = val
+			}
+			else {
+				element.value = val;
+			}
 		}
 
 		element.onchange = function() {
@@ -42,10 +47,9 @@ MVC = {};
 		set_data_keys();
 
 		for(var key in model) {
-			var element = $("[data-key="+key+"]")[0];
-			if(element) {
-				setup(model, key, element);
-			}
+			$("[data-key="+key+"]").each(function() {
+				setup(model, key, this);
+			});
 		}
 	}
 

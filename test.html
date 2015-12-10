@@ -17,6 +17,14 @@
 </select><br>
 Are you happy? <input type=checkbox name="Are you happy?" ><br>
 
+Radio Station: 
+	<input type=radio name="Station" value=WKRP> WKRP
+	&nbsp;&nbsp;&nbsp;
+	<input type=radio name="Station" value=KUOW> KUOW
+	&nbsp;&nbsp;&nbsp;
+	<input type=radio name="Station" value=KCRAP> KCRAP
+
+
 <hr>
 
 <script>
@@ -27,6 +35,7 @@ Are you happy? <input type=checkbox name="Are you happy?" ><br>
 		age: 0,
 		flavor: "",
 		are_you_happy: false,
+		station: "",
 	};
 
 	load = function() {
