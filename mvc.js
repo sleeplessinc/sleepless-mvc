@@ -8,12 +8,19 @@ MVC = {};
 	
 	var set_data_keys = function() {
 		$("input,textarea,select").each(function() {
-			if(this.name) {
-				var dk = this.name.toId();
-				this.setAttribute("data-key", dk);
+			$t = $(this);
+			var dk = $t.attr("data-key");
+			if(dk) {
+				return;		// already set
 			}
+			// try to convert name (or id if no name) for use as dk
+			dk = $t.attr("id") || $t.attr("name") || $t.attr("title");
+			if(!dk) {
+				return;
+			}
+			dk = dk.toId();
+			this.setAttribute("data-key", dk);
 		});
-		return function(){};
 	}
 
 	var set_one = function(model, key, element) {
