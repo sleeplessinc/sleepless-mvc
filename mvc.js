@@ -14,7 +14,7 @@ MVC = {};
 				return;		// already set
 			}
 			// try to convert name (or id if no name) for use as dk
-			dk = $t.attr("id") || $t.attr("name") || $t.attr("title");
+			dk = $t.attr("id") || $t.attr("name") || $t.attr("placeholder") || $t.attr("title");
 			if(!dk) {
 				return;
 			}
@@ -41,6 +41,10 @@ MVC = {};
 		element.onchange = function() {
 			if(element.type == "checkbox") {
 				model[key] = this.checked;
+			}
+			else
+			if(element.type == "number") {
+				model[key] = toFlt(this.value);
 			}
 			else {
 				model[key] = this.value;
