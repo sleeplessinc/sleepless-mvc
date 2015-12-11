@@ -23,8 +23,12 @@ MVC = {};
 		});
 	}
 
-	var set_one = function(model, key, element) {
+	var set_one = function(model, key, element, set_hook, get_hook) {
 		var val = model[key];
+
+		if(set_hook) {
+			val = set_hook(element, val);		// optionally give client a chance to modify val
+		}
 
 		if(element.type == "radio") {
 			element.checked = (element.value == val);
@@ -39,21 +43,29 @@ MVC = {};
 		}
 
 		element.onchange = function() {
+			var val = null;
+
 			if(element.type == "checkbox") {
-				model[key] = this.checked;
+				val = this.checked;
 			}
 			else
 			if(element.type == "number") {
-				model[key] = toFlt(this.value);
+				val = toFlt(this.value);
 			}
 			else {
-				model[key] = this.value;
+				val = this.value;
 			}
+
+			if(get_hook) {
+				val = get_hook(element, val);		// optionally give client a chance to modify val
+			}
+
+			model[key] = val;
 		}
 	}
 
 
-	var set_all = function(model, mom) {
+	var set_all = function(model, mom, set_hook, get_hook) {
 		var pre = mom ? (mom+"_") : "";
 		for(var key in model) {
 			if(typeof model[key] === "object") {
@@ -61,16 +73,16 @@ MVC = {};
 			}
 			else {
 				$("[data-key="+pre+key+"]").each(function() {
-					set_one(model, key, this);
+					set_one(model, key, this, set_hook, get_hook);
 				});
 			}
 		}
 	}
 
 	// update UI to match model
-	MVC.toUI = function(model) {
+	MVC.toUI = function(model, set_hook, get_hook) {
 		set_data_keys();
-		set_all(model);
+		set_all(model, null, set_hook, get_hook);
 	}
 
 })();

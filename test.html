@@ -43,7 +43,8 @@ Cats:
 	&nbsp;
 	<input type=checkbox name="pets,cats,stink"> Stink 
 
-
+<p>
+Date: <input type=text data=isdate name="a_date">
 <hr>
 
 <script>
@@ -64,12 +65,29 @@ Cats:
 			dogs: { spot: false, rover: false, },
 			cats: { mittens: false, stink: false, },
 		},
+		a_date: "",
 		glorp: 7,
 	};
 
+	// coming out of model, and going into UI
+	set_hook = function(e, v) {
+		if($(e).attr("data") == "isdate") {
+			return ts2us_mdy(v);
+		}
+		return v;
+	}
+
+	// coming out of UI, and going into model
+	get_hook = function(e, v) {
+		if($(e).attr("data") == "isdate") {
+			return us2ts(v);
+		}
+		return v;
+	}
+
 	load = function() {
 		data = JSON.parse(localStorage.getItem("data"));
-		MVC.toUI(data);
+		MVC.toUI(data, set_hook, get_hook);
 	}
 
 	save = function() {
@@ -78,7 +96,7 @@ Cats:
 		log("saved: "+json);
 	}
 
-	MVC.toUI(data);
+	MVC.toUI(data, set_hook, get_hook);
 
 </script>
 
