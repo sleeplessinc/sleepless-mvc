@@ -1,6 +1,6 @@
 {
 	"name": "sleepless-mvc",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description" : "Minimalist Javascript Object/UI code for browser",
 	"author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
 	"license": {
