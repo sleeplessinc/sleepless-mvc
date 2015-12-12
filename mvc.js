@@ -69,7 +69,7 @@ MVC = {};
 		var pre = mom ? (mom+"_") : "";
 		for(var key in model) {
 			if(typeof model[key] === "object") {
-				set_all(model[key], pre+key);
+				set_all(model[key], pre+key, set_hook, get_hook);
 			}
 			else {
 				$("[data-key="+pre+key+"]").each(function() {
