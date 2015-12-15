@@ -27,101 +27,119 @@ IN THE SOFTWARE.
 
 MVC = {};
 
-(function() {
-	
-	// Attempts to infer and set, a sensible data-key attribute on all
-	// input, textarea, and select elements using whatever other attributes are available.
-	MVC.set_data_keys = function() {
-		$("input,textarea,select").each(function() {
-			$t = $(this);
-			var dk = $t.attr("data-key");
-			if(dk) {
-				return;		// already set
+
+// Attempts to infer and set, a sensible data-key attribute on all
+// input, textarea, and select elements using whatever other attributes it can find.
+
+MVC.set_data_keys = function() {
+
+	$("input,textarea,select").each(function() {
+
+		$t = $(this);
+
+		var dk = $t.attr("data-key");
+		if(dk) {
+			return;		// already set
+		}
+
+		// try to convert name (or id if no name) for use as dk
+		dk = $t.attr("id") || $t.attr("name") || $t.attr("placeholder") || $t.attr("title");
+		if(!dk) {
+			return;
+		}
+
+		dk = dk.toId();
+		this.setAttribute("data-key", dk);
+
+	});
+
+};
+
+
+// Tie a model to the UI
+// Looks for any elements in UI with a data-key attribute.
+// Uses the value of that attribute to access a value in the model.
+// If found in the model, the value is copied to the UI element.
+// A change handler is then attached to the element that copies the value back into the model.
+//
+// If a set_hook function is provided, the UI element and the value from the model will be passed
+// into it after the value is taken from the model, but before it is placed into the UI, giving the
+// caller a way to modify/filter the value on its way from model to UI.
+// The modified value should be returned from set_hoook().
+
+// If a get_hook function is provided, the UI element and the value from the UI will be passed
+// into it after the value is taken from the UI, but before it is placed into the model, giving the
+// caller a way to modify/filter the value on its way from UI to model.
+// The modified value should be returned from get_hoook().
+
+MVC.tie = function(model, set_hook, get_hook) {
+
+	// find all elements with a data-key attribute
+	$("[data-key]").each(function() {			// step through each of them.
+
+		var el = this;
+		var dk = el.getAttribute("data-key");
+		var val = el.value;
+
+		// dig out object that actually holds/receives value
+		var a = dk.split(".");		// split the data-key value on dots; "foo.bar" becomes ["foo","bar"]
+		var m = model;
+		while(a.length > 1) {
+			var k = a.shift();
+			var next_m = m[k];
+			if(next_m === undefined) {
+				next_m = {};
+				m[k] = next_m;
 			}
-			// try to convert name (or id if no name) for use as dk
-			dk = $t.attr("id") || $t.attr("name") || $t.attr("placeholder") || $t.attr("title");
-			if(!dk) {
-				return;
+			m = next_m;
+		}
+		var key = a.shift();		// a should now be empty, i.e., []
+
+		// move value from model (if present) into UI
+		var val = m[key];
+		if(val !== undefined) {
+
+			if(set_hook) {
+				val = set_hook(el, val);
 			}
-			dk = dk.toId();
-			this.setAttribute("data-key", dk);
-		});
-	}
 
-	// Tie a model to the UI
-	// Looks for any elements in UI with a data-key attribute.
-	// Then the value of that attribute is used to look for a key in the model
-	// If found in the model, the value is moved to the UI element
-	// A change handler is attached to the element so that when it is modified, the value
-	// is copied back into the model.
-	MVC.tie = function(model, set_hook, get_hook) {
-
-		// find all elements with a data-key attribute
-		$("[data-key]").each(function() {			// step through each of them.
-
-			var el = this;
-			var dk = el.getAttribute("data-key");
-			var val = el.value;
-
-			// dig out object that actually holds/receives value
-			var a = dk.split(".");		// split the data-key value on dots; "foo.bar" becomes ["foo","bar"]
-			var m = model;
-			while(a.length > 1) {
-				var k = a.shift();
-				var next_m = m[k];
-				if(next_m === undefined) {
-					next_m = {};
-					m[k] = next_m;
-				}
-				m = next_m;
+			if(el.type == "radio") {
+				el.checked = (el.value == val);
 			}
-			var key = a.shift();		// a should now be empty, i.e., []
-
-			// move value from model (if present) into UI
-			var val = m[key];
-			if(val !== undefined) {
-
-				if(set_hook) {
-					val = set_hook(el, val);
-				}
-
-				if(el.type == "radio") {
-					el.checked = (el.value == val);
+			else {
+				if(typeof val === "boolean") {
+					el.checked = val
 				}
 				else {
-					if(typeof val === "boolean") {
-						el.checked = val
-					}
-					else {
-						el.value = val;
-					}
+					el.value = val;
 				}
 			}
+		}
 
-			// set change handler 
-			el.onchange = function() {
-				var val = null;
+		// set change handler 
+		el.onchange = function() {
 
-				// get value from UI
-				if(el.type == "checkbox") {
-					val = this.checked;
-				}
-				else
-				if(el.type == "number") {
-					val = toFlt(this.value);
-				}
-				else {
-					val = this.value;
-				}
+			var val = null;
 
-				// optionally modify val with hoook
-				if(get_hook) {
-					val = get_hook(el, val);
-				}
-
-				m[key] = val;			// place value into model
+			// get value from UI
+			if(el.type == "checkbox") {
+				val = this.checked;
 			}
-		});
-	}
-})();
+			else
+			if(el.type == "number") {
+				val = toFlt(this.value);
+			}
+			else {
+				val = this.value;
+			}
+
+			// optionally modify val with hoook
+			if(get_hook) {
+				val = get_hook(el, val);
+			}
+
+			m[key] = val;			// copy value into model
+		}
+	});
+};
 
