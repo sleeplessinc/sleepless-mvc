@@ -6,7 +6,23 @@ Expects sleepless.js (https://github.com/sleeplessinc/sleepless)
 
 See test.html for example usage.
 
-# MVC.tie()
+## MVC.tie()
+
+Tie a model to the UI
+Looks for any elements in UI with a data-key attribute.
+Uses the value of that attribute to access a value in the model.
+If found in the model, the value is copied to the UI element.
+A change handler is then attached to the element that copies the value back into the model.
+
+If a set_hook function is provided, the UI element and the value from the model will be passed
+into it after the value is taken from the model, but before it is placed into the UI, giving the
+caller a way to modify/filter the value on its way from model to UI.
+The modified value should be returned from set_hoook().
+
+If a get_hook function is provided, the UI element and the value from the UI will be passed
+into it after the value is taken from the UI, but before it is placed into the model, giving the
+caller a way to modify/filter the value on its way from UI to model.
+The modified value should be returned from get_hoook().
 
 ## MVC.set_data_keys()
 
