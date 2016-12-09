@@ -1,6 +1,6 @@
 /*
 
-Copyright 2015 Sleepless Software Inc. All rights reserved.
+Copyright 2016 Sleepless Software Inc. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -31,9 +31,15 @@ MVC = {};
 // Attempts to infer and set, a sensible data-key attribute on all
 // input, textarea, and select elements using whatever other attributes it can find.
 
-MVC.set_data_keys = function() {
+MVC.set_data_keys = function(slctr) {
 
-	$("input,textarea,select").each(function() {
+	slctr = slctr || "body";	// undefined, null, 0, false all become "body"
+	if(slctr instanceof $) {
+		slctr = slctr.get(0);	// jquery set passed in, use first element
+	}
+	var $j = $(slctr).find("input,textarea,select");
+
+	$j.each(function() {
 
 		$t = $(this);
 
@@ -48,7 +54,7 @@ MVC.set_data_keys = function() {
 			return;
 		}
 
-		dk = dk.toId();
+		dk = dk.split(".").map(function(s) { return s.toId(); }).join(".");
 		this.setAttribute("data-key", dk);
 
 	});
@@ -57,29 +63,31 @@ MVC.set_data_keys = function() {
 
 
 // Tie a model to the UI
-// Looks for any elements in UI with a data-key attribute.
+// Looks for all elements in UI with a data-key attribute.
 // Uses the value of that attribute to access a value in the model.
 // If found in the model, the value is copied to the UI element.
 // A change handler is then attached to the element that copies the value back into the model.
 //
-// If a set_hook function is provided, the UI element and the value from the model will be passed
+// If a m2u_hook function is provided, the UI element and the value from the model will be passed
 // into it after the value is taken from the model, but before it is placed into the UI, giving the
 // caller a way to modify/filter the value on its way from model to UI.
-// The modified value should be returned from set_hoook().
+// The modified value should be returned from m2u_hook().
 
-// If a get_hook function is provided, the UI element and the value from the UI will be passed
+// If a u2m_hook function is provided, the UI element and the value from the UI will be passed
 // into it after the value is taken from the UI, but before it is placed into the model, giving the
 // caller a way to modify/filter the value on its way from UI to model.
-// The modified value should be returned from get_hoook().
+// The modified value should be returned from u2m_hook().
 
-MVC.tie = function(model, set_hook, get_hook) {
+MVC.tie = function(model, m2u_hook, u2m_hook) {
+
+	if(!model)
+		model = {};
 
 	// find all elements with a data-key attribute
 	$("[data-key]").each(function() {			// step through each of them.
 
 		var el = this;
 		var dk = el.getAttribute("data-key");
-		var val = el.value;
 
 		// dig out object that actually holds/receives value
 		var a = dk.split(".");		// split the data-key value on dots; "foo.bar" becomes ["foo","bar"]
@@ -93,14 +101,16 @@ MVC.tie = function(model, set_hook, get_hook) {
 			}
 			m = next_m;
 		}
-		var key = a.shift();		// a should now be empty, i.e., []
+		// a should now have only one element left
+		var key = a.shift();
+		// a should now be empty, i.e., []
 
 		// move value from model (if present) into UI
 		var val = m[key];
 		if(val !== undefined) {
 
-			if(set_hook) {
-				val = set_hook(el, val);
+			if(m2u_hook) {
+				val = m2u_hook(el, val);
 			}
 
 			if(el.type == "radio") {
@@ -133,13 +143,15 @@ MVC.tie = function(model, set_hook, get_hook) {
 				val = this.value;
 			}
 
-			// optionally modify val with hoook
-			if(get_hook) {
-				val = get_hook(el, val);
+			// optionally modify val with hook
+			if(u2m_hook) {
+				val = u2m_hook(el, val);
 			}
 
 			m[key] = val;			// copy value into model
 		}
 	});
+
+	return model;
 };
 

@@ -6,79 +6,61 @@
 <script src="sleepless.js"></script>
 <script src="mvc.js"></script>
 
+<div id=form>
+	<input type=text data-key="title" ><br>
+	<textarea placeholder="Description"></textarea><br>
+	<input type=number id="age" ><br>
+	<select name=flavor>
+		<option></option>
+		<option>Foo</option>
+		<option>Bar</option>
+	</select><br>
+	Are you happy? <input type=checkbox title="Are you happy?" ><br>
 
-<input type=text data-key="title" ><br>
-<textarea placeholder="Description"></textarea><br>
-<input type=number id="age" ><br>
-<select name=flavor>
-	<option></option>
-	<option>Foo</option>
-	<option>Bar</option>
-</select><br>
-Are you happy? <input type=checkbox title="Are you happy?" ><br>
+	Radio Station: 
+		<input type=radio name="Station" station value=WKRP> WKRP
+		&nbsp;&nbsp;&nbsp;
+		<input type=radio name="Station" station value=KUOW> KUOW
+		&nbsp;&nbsp;&nbsp;
+		<input type=radio name="Station" station value=KCRAP> KCRAP
 
-Radio Station: 
-	<input type=radio name="Station" station value=WKRP> WKRP
-	&nbsp;&nbsp;&nbsp;
-	<input type=radio name="Station" station value=KUOW> KUOW
-	&nbsp;&nbsp;&nbsp;
-	<input type=radio name="Station" station value=KCRAP> KCRAP
+	<p>
+	Organs:
+		<input type=checkbox id="organs.kidney"> Kidney 
+		&nbsp;
+		<input type=checkbox name="organs.lung"> Lung 
+		&nbsp;
+		<input type=checkbox data-key="organs.heart"> Heart 
 
-<p>
-Organs:
-	<input type=checkbox name="organs.kidney"> Kidney 
-	&nbsp;
-	<input type=checkbox name="organs.lung"> Lung 
-	&nbsp;
-	<input type=checkbox data-key="organs.heart"> Heart 
+	<p>
+	Pets:<br>
+	Dogs:
+		<input type=checkbox id="pets.dogs.spot"> Spot 
+		&nbsp;
+		<input type=checkbox name="pets.dogs.rover"> Rover 
+		<br>
+	Cats:
+		<input type=checkbox name="pets.cats.mittens"> Mittens 
+		&nbsp;
+		<input type=checkbox name="pets.cats.stink"> Stink 
+		<br>
 
-<p>
-Pets:<br>
-Dogs:
-	<input type=checkbox name="pets.dogs.spot"> Spot 
-	&nbsp;
-	<input type=checkbox name="pets.dogs.rover"> Rover 
-	<br>
-Cats:
-	<input type=checkbox name="pets.cats.mittens"> Mittens 
-	&nbsp;
-	<input type=checkbox name="pets.cats.stink"> Stink 
-	<br>
+	<p>
+	Date: <input type=text data=isdate name="a_date">
+	<hr>
+</div>
 
-<p>
-Date: <input type=text data=isdate name="a_date">
-<hr>
+<div>
+	<input type=text value="this shouldn't change">
+</div>
 
 <script>
 
-	MVC.set_data_keys();
-
-	var data = {
-		/*
-		title: "",
-		description: "",
-		age: 0,
-		flavor: "",
-		are_you_happy: false,
-		station: "",
-		organs: {
-			kidney: false,
-			lung: false,
-			heart: false,
-		},
-		pets: {
-			dogs: { spot: false, rover: false, },
-			cats: { mittens: false, stink: false, },
-		},
-		a_date: "",
-		*/
-		glorp: 7,
-	};
-
+	MVC.set_data_keys($("#form").get(0));
 
 	// coming out of model, and going into UI
-	set_hook = function(e, v) {
-		log("set_hook: v="+v+" data-key="+$(e).attr("data-key"));
+	m2u_hook = function(e, v) {
+		log("m2u_hook: v="+v+" data-key="+$(e).attr("data-key"));
 		if($(e).attr("data") == "isdate") {
 			return ts2us_mdy(v);
 		}
@@ -86,8 +68,8 @@ Date: <input type=text data=isdate name="a_date">
 	}
 
 	// coming out of UI, and going into model
-	get_hook = function(e, v) {
-		log("get_hook: v="+v+" data-key="+$(e).attr("data-key"));
+	u2m_hook = function(e, v) {
+		log("u2m_hook: v="+v+" data-key="+$(e).attr("data-key"));
 		if($(e).attr("data") == "isdate") {
 			return us2ts(v);
 		}
@@ -96,7 +78,9 @@ Date: <input type=text data=isdate name="a_date">
 
 	load = function() {
 		data = JSON.parse(localStorage.getItem("data"));
-		MVC.tie(data, set_hook, get_hook);
+		if(!data) 
+			data = {};
+		MVC.tie(data, m2u_hook, u2m_hook);
 	}
 
 	save = function() {
@@ -105,7 +89,7 @@ Date: <input type=text data=isdate name="a_date">
 		log("saved: "+json);
 	}
 
-	MVC.tie(data, set_hook, get_hook);
+	var data = MVC.tie(null, m2u_hook, u2m_hook);
 
 </script>
 
