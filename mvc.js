@@ -28,16 +28,18 @@ IN THE SOFTWARE.
 MVC = {};
 
 
+// DEPRECATE in favor of MVC.attach()
+//
 // Attempts to infer and set, a sensible data-key attribute on all
 // input, textarea, and select elements using whatever other attributes it can find.
 
-MVC.set_data_keys = function(slctr) {
+MVC.set_data_keys = function(base) {
 
-	slctr = slctr || "body";	// undefined, null, 0, false all become "body"
-	if(slctr instanceof $) {
-		slctr = slctr.get(0);	// jquery set passed in, use first element
+	base = base || "body";	// undefined, null, 0, false all become "body"
+	if(base instanceof $) {
+		base = base.get(0);	// jquery set passed in, use first element
 	}
-	var $j = $(slctr).find("input,textarea,select");
+	var $j = $(base).find("input,textarea,select");
 
 	$j.each(function() {
 
@@ -62,6 +64,8 @@ MVC.set_data_keys = function(slctr) {
 };
 
 
+// DEPRECATE in favor of MVC.attach()
+//
 // Tie a model to the UI
 // Looks for all elements in UI with a data-key attribute.
 // Uses the value of that attribute to access a value in the model.
@@ -154,4 +158,138 @@ MVC.tie = function(model, m2u_hook, u2m_hook) {
 
 	return model;
 };
+
+
+
+MVC.attach = function(base, model, m2u_hook, u2m_hook) {
+
+	// Attempt to infer and set, a sensible data-key attribute on all
+	// input, textarea, and select elements descended from base
+	// using whatever other attributes it can find.
+
+	base = base || "body";	// undefined, null, 0, false all become "body"
+	$(base).find("input,textarea,select").each(function() {
+
+		$t = $(this);
+
+		var dk = $t.attr("data-key");
+		if(dk) {
+			return;		// already set
+		}
+
+		// try to convert name (or id if no name) for use as dk
+		dk = $t.attr("id") || $t.attr("name") || $t.attr("placeholder") || $t.attr("title");
+		if(!dk) {
+			return;
+		}
+
+		// need to do this because toId() clobbers dots
+		dk = dk.split(".").map(function(s) { return s.toId(); }).join(".");
+
+		$t.attr("data-key", dk);
+	});
+
+
+	// caller can pass null for model and a new empty one will be created and returned from attach()
+	if(!model) {
+		model = {};
+	}
+
+
+	// Tie the model to the UI
+	// Looks for all elements in UI with a data-key attribute.
+	// Uses the value of that attribute to access a value in the model.
+	// If found in the model, the value is copied to the UI element.
+	// A change handler is then attached to the element that copies the value back into the model.
+	//
+	// If a m2u_hook function is provided, the UI element and the value from the model will be passed
+	// into it after the value is taken from the model, but before it is placed into the UI, giving the
+	// caller a way to modify/filter the value on its way from model to UI.
+	// The modified value should be returned from m2u_hook().
+	//
+	// If a u2m_hook function is provided, the UI element and the value from the UI will be passed
+	// into it after the value is taken from the UI, but before it is placed into the model, giving the
+	// caller a way to modify/filter the value on its way from UI to model.
+	// The modified value should be returned from u2m_hook().
+
+	// find all elements, descended from base, with a data-key attribute
+	$(base).find("[data-key]").each(function() {			// step through each of them.
+
+		var el = this;
+		var dk = el.getAttribute("data-key");
+
+		// dig out object that actually holds/receives value
+		var a = dk.split(".");		// split the data-key value on dots; "foo.bar" becomes ["foo","bar"]
+		var m = model;
+		while(a.length > 1) {
+			var k = a.shift();
+			var next_m = m[k];
+			if(next_m === undefined) {
+				next_m = {};
+				m[k] = next_m;
+			}
+			m = next_m;
+		}
+		// a should now have only one element left
+		var key = a.shift();
+		// a should now be empty, i.e., []
+
+		// move value from model (if present) into UI
+		var val = m[key];
+		if(val !== undefined) {
+			if(m2u_hook) {
+				val = m2u_hook(el, val);
+			}
+			if(el.type == "radio") {
+				el.checked = (el.value == val);
+			}
+			else {
+				if(typeof val === "boolean") {
+					el.checked = val
+				}
+				else {
+					el.value = val;
+				}
+			}
+		}
+
+		// set change handler 
+		el.onchange = function() {
+
+			var val = null;
+
+			// get value from UI
+			if(el.type == "checkbox") {
+				val = this.checked;
+			}
+			else
+			if(el.type == "radio") {
+				if(!el.checked) {
+					return;
+				}
+				val = this.value;
+			}
+			else
+			if(el.type == "number") {
+				val = toFlt(this.value);
+			}
+			else {
+				val = this.value;
+			}
+
+			// optionally modify val with hook
+			if(u2m_hook) {
+				val = u2m_hook(el, val);
+			}
+
+			m[key] = val;			// copy value into model
+		}
+
+		$(el).change();
+
+	});
+
+	return model;
+
+}
 

@@ -11,18 +11,20 @@
 	<textarea placeholder="Description"></textarea><br>
 	<input type=number id="age" ><br>
 	<select name=flavor>
-		<option></option>
+		<option selected></option>
 		<option>Foo</option>
 		<option>Bar</option>
 	</select><br>
 	Are you happy? <input type=checkbox title="Are you happy?" ><br>
 
 	Radio Station: 
-		<input type=radio name="Station" station value=WKRP> WKRP
+		<input type=radio name="Station" value="" checked> N/A
 		&nbsp;&nbsp;&nbsp;
-		<input type=radio name="Station" station value=KUOW> KUOW
+		<input type=radio name="Station" value=WKRP> WKRP
 		&nbsp;&nbsp;&nbsp;
-		<input type=radio name="Station" station value=KCRAP> KCRAP
+		<input type=radio name="Station" value=KUOW> KUOW
+		&nbsp;&nbsp;&nbsp;
+		<input type=radio name="Station" value=KCRAP> KCRAP
 
 	<p>
 	Organs:
@@ -50,15 +52,14 @@
 	<hr>
 </div>
 
-<div>
-	<input type=text value="this shouldn't change">
-</div>
+<input type=text value="This shouldn't change" name=foo>
 
 <script>
 
-	MVC.set_data_keys($("#form").get(0));
+	var base = null;
+	var base = "#form";
+	//var base = $("#form").get(0);
 
-	// coming out of model, and going into UI
 	m2u_hook = function(e, v) {
 		log("m2u_hook: v="+v+" data-key="+$(e).attr("data-key"));
 		if($(e).attr("data") == "isdate") {
@@ -67,7 +68,6 @@
 		return v;
 	}
 
-	// coming out of UI, and going into model
 	u2m_hook = function(e, v) {
 		log("u2m_hook: v="+v+" data-key="+$(e).attr("data-key"));
 		if($(e).attr("data") == "isdate") {
@@ -80,7 +80,7 @@
 		data = JSON.parse(localStorage.getItem("data"));
 		if(!data) 
 			data = {};
-		MVC.tie(data, m2u_hook, u2m_hook);
+		MVC.attach(base, data, m2u_hook, u2m_hook);
 	}
 
 	save = function() {
@@ -89,7 +89,8 @@
 		log("saved: "+json);
 	}
 
-	var data = MVC.tie(null, m2u_hook, u2m_hook);
+	var data = MVC.attach(base, null, m2u_hook, u2m_hook);
+	log("attached: "+JSON.stringify(data));
 
 </script>
 
