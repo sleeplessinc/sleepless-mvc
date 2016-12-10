@@ -243,7 +243,7 @@ MVC.attach = function(base, model, m2u_hook, u2m_hook) {
 		var val = m[key];
 		if(val !== undefined) {
 			if(m2u_hook) {
-				val = m2u_hook(el, val);
+				val = m2u_hook(el, val, dk, m, model);
 			}
 			if(el.type == "radio") {
 				el.checked = (el.value == val);
@@ -284,7 +284,7 @@ MVC.attach = function(base, model, m2u_hook, u2m_hook) {
 
 			// optionally modify val with hook
 			if(u2m_hook) {
-				val = u2m_hook(el, val);
+				val = u2m_hook(el, val, dk, m, model);
 			}
 
 			m[key] = val;			// copy value into model
