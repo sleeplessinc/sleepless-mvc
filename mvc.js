@@ -180,12 +180,7 @@ MVC.attach = function(base, model, m2u_hook, u2m_hook) {
 		// try to convert name (or id if no name) for use as dk
 		dk = $t.attr("id") || $t.attr("name") || $t.attr("placeholder") || $t.attr("title");
 		if(!dk) {
-			if(this.type == "button") {
-				dk = this.value;
-			}
-			if(!dk) {
-				return;
-			}
+			return;
 		}
 
 		// need to do this because toId() clobbers dots
