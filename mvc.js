@@ -161,7 +161,8 @@ MVC.tie = function(model, m2u_hook, u2m_hook) {
 
 
 
-MVC.attach = function(base, model, m2u_hook, u2m_hook) {
+// base = base element in document
+MVC.attach = function(base, model, m2u_hook, u2m_hook model_changed) {
 
 	// Attempt to infer and set, a sensible data-key attribute on all
 	// input, textarea, and select elements descended from base
@@ -283,6 +284,10 @@ MVC.attach = function(base, model, m2u_hook, u2m_hook) {
 			}
 
 			m[key] = val;			// copy value into model
+
+			if(model_changed) {
+				model_changed(key, val);
+			}
 		}
 
 		$(el).change();
