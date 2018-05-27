@@ -162,7 +162,7 @@ MVC.tie = function(model, m2u_hook, u2m_hook) {
 
 
 // base = base element in document
-MVC.attach = function(base, model, m2u_hook, u2m_hook model_changed) {
+MVC.attach = function(base, model, m2u_hook, u2m_hook, model_changed) {
 
 	// Attempt to infer and set, a sensible data-key attribute on all
 	// input, textarea, and select elements descended from base
