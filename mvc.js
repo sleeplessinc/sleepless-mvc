@@ -285,14 +285,16 @@ MVC.attach = function(base, model, m2u_hook, u2m_hook, model_changed) {
 
 			m[key] = val;			// copy value into model
 
-			if(model_changed) {
-				model_changed(key, val);
+			if(ch_hook) {
+				ch_hook(key, val);
 			}
 		}
 
 		$(el).change();
 
 	});
+
+	var ch_hook = model_changed;
 
 	return model;
 
